@@ -51,7 +51,7 @@ fn get_attr_value(attributes: &Vec<Attribute>) -> Result<Option<Ident>>{
                                 _ => Ok(None)
                             };
                         } else{
-                            return Err(Error::new(attr.span(), "expected `builder(each = ...)`"))
+                            return Err(Error::new(metadata.span(), "expected `builder(each = \"...\")`"))
                         }
                     }
                 }
@@ -97,7 +97,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                     }
                 } else{
                     quote!{
-                        #field_name: Option<#field_type>,
+                        #field_name: std::option::Option<#field_type>,
                     }
                 }
             }).collect::<Vec<_>>();
@@ -171,7 +171,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                 } else{
                     quote!(
                         let #field_name = self.#field_name.as_ref()
-                        .ok_or_else(|| Box::<dyn Error>::from("#field_name should not be none."))?
+                        .ok_or_else(|| std::boxed::Box::<dyn Error>::from("#field_name should not be none."))?
                         .clone();
                     )
                 }
@@ -185,7 +185,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
             }).collect::<Vec<_>>();
 
             let build = quote!(
-                pub fn build(&mut self) -> Result<#name, Box<dyn Error>>{
+                pub fn build(&mut self) -> std::result::Result<#name, std::boxed::Box<dyn Error>>{
                     #(#build_content1)*
 
                     Ok(
